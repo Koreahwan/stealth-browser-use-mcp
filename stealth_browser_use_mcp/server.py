@@ -26,7 +26,7 @@ _MAX_INPUT_LENGTH = 4000
 _PROVIDER_DEFAULTS = {
     "anthropic": "claude-sonnet-4-20250514",
     "openai": "gpt-4o",
-    "openrouter": "anthropic/claude-sonnet-4",
+    "openrouter": "google/gemini-2.0-flash-exp:free",
     "google": "gemini-2.0-flash",
     "ollama": "qwen3:8b",
 }
