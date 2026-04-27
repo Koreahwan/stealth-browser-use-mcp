@@ -132,11 +132,13 @@ _STEALTH_ARGS = [
     "--webrtc-ip-handling-policy=disable_non_proxied_udp",
     "--force-color-profile=srgb",
     "--disable-features=IsolateOrigins,site-per-process",
-]
-
-_IGNORE_DEFAULT_ARGS = [
-    "--enable-automation",
-    "--disable-extensions",
+    "--disable-infobars",
+    "--disable-background-timer-throttling",
+    "--disable-backgrounding-occluded-windows",
+    "--disable-renderer-backgrounding",
+    "--disable-ipc-flooding-protection",
+    "--lang=" + os.environ.get("BROWSER_LANG", "en-US"),
+    "--window-size=" + os.environ.get("BROWSER_WINDOW_SIZE", "1920,1080"),
 ]
 
 
@@ -150,10 +152,14 @@ _BLOCK_RESOURCES: frozenset[str] = frozenset(
 def _profile() -> BrowserProfile:
     headless = os.environ.get("HEADLESS", "true").lower() == "true"
     proxy = os.environ.get("PROXY_SERVER")
+    locale = os.environ.get("BROWSER_LOCALE", "en-US")
+    timezone = os.environ.get("BROWSER_TIMEZONE", "America/New_York")
     kwargs: dict = {
         "executable_path": chromium_path(),
         "headless": headless,
         "args": _STEALTH_ARGS,
+        "locale": locale,
+        "timezone_id": timezone,
     }
     if proxy:
         kwargs["proxy"] = {"server": proxy}
