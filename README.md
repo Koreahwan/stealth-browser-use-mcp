@@ -44,18 +44,16 @@ Works with any MCP client: Cursor, Windsurf, VS Code, Cline, Roo Code, OpenCode,
 
 ## LLM Providers
 
-| Provider | Key | Install |
-|----------|-----|---------|
-| Anthropic (default) | `ANTHROPIC_API_KEY` | included |
-| OpenRouter | `OPENROUTER_API_KEY` | `[openai]` |
-| OpenAI | `OPENAI_API_KEY` | `[openai]` |
-| DeepSeek / Groq / Together | `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `[openai]` |
-| Google Gemini | `GOOGLE_API_KEY` | `[google]` |
-| Ollama (local) | `OLLAMA_MODEL` | `[ollama]` |
+| Provider | Key |
+|----------|-----|
+| Anthropic (default) | `ANTHROPIC_API_KEY` |
+| OpenRouter | `OPENROUTER_API_KEY` |
+| OpenAI | `OPENAI_API_KEY` |
+| DeepSeek / Groq / Together | `OPENAI_API_KEY` + `OPENAI_BASE_URL` |
+| Google Gemini | `GOOGLE_API_KEY` |
+| Ollama (local) | `OLLAMA_MODEL` |
 
-All providers: `pip install 'stealth-browser-use-mcp[all]'`
-
-Set `BROWSER_USE_MODEL` to override the default model per provider.
+All providers included. Set `BROWSER_USE_MODEL` to override the default model.
 
 ## How It Works
 

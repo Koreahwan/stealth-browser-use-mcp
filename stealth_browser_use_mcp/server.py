@@ -52,61 +52,36 @@ def _model(provider: str) -> str:
 
 
 def _llm() -> BaseChatModel:
-    # Anthropic (default — hard dependency, always available)
     if os.environ.get("ANTHROPIC_API_KEY"):
         from langchain_anthropic import ChatAnthropic
 
         return ChatAnthropic(model=_model("anthropic"))
 
-    # OpenRouter
     if os.environ.get("OPENROUTER_API_KEY"):
-        try:
-            from langchain_openai import ChatOpenAI
-        except ImportError as e:
-            raise ImportError(
-                "OPENROUTER_API_KEY is set but langchain-openai is not installed. "
-                "Run: pip install 'stealth-browser-use-mcp[openai]'"
-            ) from e
+        from langchain_openai import ChatOpenAI
+
         return ChatOpenAI(
             model=_model("openrouter"),
             api_key=os.environ["OPENROUTER_API_KEY"],
             base_url="https://openrouter.ai/api/v1",
         )
 
-    # OpenAI + OpenAI-compatible (DeepSeek, Groq, Together, etc.)
     if os.environ.get("OPENAI_API_KEY"):
-        try:
-            from langchain_openai import ChatOpenAI
-        except ImportError as e:
-            raise ImportError(
-                "OPENAI_API_KEY is set but langchain-openai is not installed. "
-                "Run: pip install 'stealth-browser-use-mcp[openai]'"
-            ) from e
+        from langchain_openai import ChatOpenAI
+
         kwargs: dict = {"model": _model("openai")}
         if os.environ.get("OPENAI_BASE_URL"):
             kwargs["base_url"] = os.environ["OPENAI_BASE_URL"]
         return ChatOpenAI(**kwargs)
 
-    # Google Gemini
     if os.environ.get("GOOGLE_API_KEY"):
-        try:
-            from langchain_google_genai import ChatGoogleGenerativeAI
-        except ImportError as e:
-            raise ImportError(
-                "GOOGLE_API_KEY is set but langchain-google-genai is not installed. "
-                "Run: pip install 'stealth-browser-use-mcp[google]'"
-            ) from e
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
         return ChatGoogleGenerativeAI(model=_model("google"))
 
-    # Ollama (local)
     if os.environ.get("OLLAMA_MODEL"):
-        try:
-            from langchain_ollama import ChatOllama
-        except ImportError as e:
-            raise ImportError(
-                "OLLAMA_MODEL is set but langchain-ollama is not installed. "
-                "Run: pip install 'stealth-browser-use-mcp[ollama]'"
-            ) from e
+        from langchain_ollama import ChatOllama
+
         base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
         return ChatOllama(model=_model("ollama"), base_url=base_url)
 

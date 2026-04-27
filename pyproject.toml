@@ -20,14 +20,11 @@ dependencies = [
     "patchright>=1.49.0",
     "mcp[cli]>=1.0.0",
     "langchain-anthropic>=0.3.0",
+    "langchain-openai>=0.3.0",
+    "langchain-google-genai>=2.0.0",
+    "langchain-ollama>=0.3.0",
     "langchain-core>=0.3.0",
 ]
-
-[project.optional-dependencies]
-openai = ["langchain-openai>=0.3.0"]
-google = ["langchain-google-genai>=2.0.0"]
-ollama = ["langchain-ollama>=0.3.0"]
-all = ["langchain-openai>=0.3.0", "langchain-google-genai>=2.0.0", "langchain-ollama>=0.3.0"]
 
 [project.urls]
 Repository = "https://github.com/Koreahwan/stealth-browser-use-mcp"
