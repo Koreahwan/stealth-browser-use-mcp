@@ -83,11 +83,32 @@ AI Agent -> MCP Server -> Browser Use Agent -> Patchright Chromium
 2. Browser Use sees the page (screenshot + DOM) and decides actions
 3. Patchright executes without triggering bot detection
 
+## Docker
+
+```bash
+docker build -t stealth-browser-use-mcp .
+docker run -i --rm -e ANTHROPIC_API_KEY=your-key stealth-browser-use-mcp
+```
+
+SSE mode (remote/cloud):
+
+```bash
+docker run -p 8808:8808 -e ANTHROPIC_API_KEY=your-key stealth-browser-use-mcp
+```
+
+## SSE Transport
+
+```bash
+stealth-browser-use-mcp --transport sse --port 8808
+```
+
 ## Security
 
 - URL scheme validation (http/https only)
 - `max_steps` capped at 50 server-side
 - Input length capped at 4000 chars
+- Task timeout (default 120s, configurable via `BROWSER_TASK_TIMEOUT`)
+- Proxy support via `PROXY_SERVER`
 
 ## Limitations
 

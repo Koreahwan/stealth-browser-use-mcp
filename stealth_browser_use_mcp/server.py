@@ -1,6 +1,8 @@
 """Stealth Browser Use MCP Server — AI-native browser automation with bot detection evasion."""
 
+import asyncio
 import os
+import sys
 from urllib.parse import urlparse
 
 from mcp.server.fastmcp import FastMCP
@@ -22,6 +24,7 @@ mcp = FastMCP(
 _ALLOWED_SCHEMES = {"http", "https"}
 _MAX_STEPS_LIMIT = 50
 _MAX_INPUT_LENGTH = 4000
+_TASK_TIMEOUT = int(os.environ.get("BROWSER_TASK_TIMEOUT", "120"))
 
 _PROVIDER_DEFAULTS = {
     "anthropic": "claude-sonnet-4-20250514",
@@ -49,6 +52,21 @@ def _clamp_steps(max_steps: int) -> int:
 
 def _model(provider: str) -> str:
     return os.environ.get("BROWSER_USE_MODEL", _PROVIDER_DEFAULTS[provider])
+
+
+def _check_provider() -> str | None:
+    """Return the detected provider name, or None if none configured."""
+    keys = [
+        ("ANTHROPIC_API_KEY", "Anthropic"),
+        ("OPENROUTER_API_KEY", "OpenRouter"),
+        ("OPENAI_API_KEY", "OpenAI"),
+        ("GOOGLE_API_KEY", "Google"),
+        ("OLLAMA_MODEL", "Ollama"),
+    ]
+    for env, name in keys:
+        if os.environ.get(env):
+            return name
+    return None
 
 
 def _llm() -> BaseChatModel:
@@ -93,10 +111,14 @@ def _llm() -> BaseChatModel:
 
 def _profile() -> BrowserProfile:
     headless = os.environ.get("HEADLESS", "true").lower() == "true"
-    return BrowserProfile(
-        executable_path=chromium_path(),
-        headless=headless,
-    )
+    proxy = os.environ.get("PROXY_SERVER")
+    kwargs: dict = {
+        "executable_path": chromium_path(),
+        "headless": headless,
+    }
+    if proxy:
+        kwargs["proxy"] = {"server": proxy}
+    return BrowserProfile(**kwargs)
 
 
 @mcp.tool()
@@ -120,7 +142,8 @@ async def browse(task: str, url: str | None = None, max_steps: int = 25) -> str:
     session = BrowserSession(browser_profile=_profile())
     async with session:
         agent = Agent(task=full_task, llm=_llm(), browser_session=session)
-        result = await agent.run(max_steps=_clamp_steps(max_steps))
+        async with asyncio.timeout(_TASK_TIMEOUT):
+            result = await agent.run(max_steps=_clamp_steps(max_steps))
         return result.final_result() or "Task completed, no text result."
 
 
@@ -146,12 +169,36 @@ async def extract(url: str, data_description: str, max_steps: int = 15) -> str:
     session = BrowserSession(browser_profile=_profile())
     async with session:
         agent = Agent(task=task, llm=_llm(), browser_session=session)
-        result = await agent.run(max_steps=_clamp_steps(max_steps))
+        async with asyncio.timeout(_TASK_TIMEOUT):
+            result = await agent.run(max_steps=_clamp_steps(max_steps))
         return result.final_result() or "No data extracted."
 
 
 def main() -> None:
-    mcp.run(transport="stdio")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Stealth Browser Use MCP Server")
+    parser.add_argument(
+        "--transport", choices=["stdio", "sse"], default="stdio",
+    )
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8808)
+    args = parser.parse_args()
+
+    provider = _check_provider()
+    if provider:
+        print(f"[stealth-browser-use] LLM provider: {provider}", file=sys.stderr)
+    else:
+        print(
+            "[stealth-browser-use] WARNING: No LLM provider configured. "
+            "Set ANTHROPIC_API_KEY, OPENROUTER_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or OLLAMA_MODEL",
+            file=sys.stderr,
+        )
+
+    if args.transport == "sse":
+        mcp.run(transport="sse", host=args.host, port=args.port)
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
