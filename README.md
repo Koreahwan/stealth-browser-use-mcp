@@ -1,9 +1,27 @@
 # stealth-browser-use-mcp
 
-AI-native stealth browser MCP server. [Browser Use](https://github.com/browser-use/browser-use) + [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright).
+[![PyPI](https://img.shields.io/pypi/v/stealth-browser-use-mcp)](https://pypi.org/project/stealth-browser-use-mcp/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-- **Self-healing**: navigates by AI vision, not CSS selectors
-- **Stealth**: Patchright patches Chromium to bypass bot detection
+AI-native stealth browser MCP server. Tell it what to do — it figures out how.
+
+[Browser Use](https://github.com/browser-use/browser-use) (AI vision navigation) + [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (bot detection bypass).
+
+## Why This One?
+
+| | stealth-browser-use-mcp | playwright-mcp | stealth-browser-mcp | browser-use-mcp-server |
+|---|---|---|---|---|
+| Navigation | **AI vision** (self-healing) | CSS selectors | CSS selectors | AI vision |
+| Bot detection bypass | **Patchright** (binary-level) | None | nodriver | None |
+| Tools | 2 (`browse`, `extract`) | 20+ | 90+ | via Agent |
+| Site layout changes | **Adapts automatically** | Breaks | Breaks | Adapts |
+| LLM providers | **6** (Anthropic, OpenAI, OpenRouter, Google, Ollama, +compatible) | N/A | 1 | 1 |
+
+**One command does it all** — no selectors, no step-by-step scripting:
+
+```
+"Log into my dashboard and download the monthly report"
+```
 
 ## Quick Start
 
