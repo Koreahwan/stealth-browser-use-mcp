@@ -18,7 +18,9 @@ NAVIGATOR_STEALTH_SCRIPT = r"""
     delete Navigator.prototype.webdriver;
     delete navigator.webdriver;
   } catch (_) {}
-  defineGetter(Navigator.prototype, 'webdriver', () => undefined);
+  if (navigator.webdriver !== undefined) {
+    defineGetter(Navigator.prototype, 'webdriver', () => undefined);
+  }
 
   const makeMimeType = (type, suffixes, description, plugin) => ({
     type,

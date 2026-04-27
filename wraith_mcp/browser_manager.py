@@ -15,6 +15,7 @@ _cached_path: str | None = None
 _cached_version: tuple[str, str] | None = None
 _patched_context_ids: set[int] = set()
 _patched_page_ids: set[int] = set()
+_page_handler_context_ids: set[int] = set()
 _humanized_page_ids: set[int] = set()
 _mouse_positions: dict[int, tuple[float, float]] = {}
 
@@ -229,7 +230,8 @@ async def _apply_page_stealth(page: Any) -> None:
 
 
 def _install_new_page_handler(context: Any) -> None:
-    if getattr(context, "_wraith_page_handler_installed", False):
+    context_id = id(context)
+    if context_id in _page_handler_context_ids:
         return
     if not hasattr(context, "on"):
         return
@@ -242,7 +244,7 @@ def _install_new_page_handler(context: Any) -> None:
 
     try:
         context.on("page", on_page)
-        setattr(context, "_wraith_page_handler_installed", True)
+        _page_handler_context_ids.add(context_id)
     except Exception:
         return
 
