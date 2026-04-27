@@ -37,6 +37,8 @@ def _validate_url(url: str) -> str:
         raise ValueError(
             f"URL scheme '{parsed.scheme}' is not allowed. Only http/https are permitted."
         )
+    if not parsed.netloc:
+        raise ValueError("URL must include a hostname.")
     return url
 
 
@@ -49,6 +51,12 @@ def _model(provider: str) -> str:
 
 
 def _llm() -> BaseChatModel:
+    # Anthropic (default — hard dependency, always available)
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(model=_model("anthropic"))
+
     # OpenAI + OpenAI-compatible (DeepSeek, Groq, Together, etc.)
     if os.environ.get("OPENAI_API_KEY"):
         try:
@@ -85,12 +93,6 @@ def _llm() -> BaseChatModel:
             ) from e
         base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
         return ChatOllama(model=_model("ollama"), base_url=base_url)
-
-    # Anthropic (default)
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        from langchain_anthropic import ChatAnthropic
-
-        return ChatAnthropic(model=_model("anthropic"))
 
     raise RuntimeError(
         "No LLM provider configured. Set one of: "
