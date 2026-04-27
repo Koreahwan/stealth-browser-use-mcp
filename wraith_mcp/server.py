@@ -139,25 +139,29 @@ def _profile() -> BrowserProfile:
 
 
 async def _apply_resource_blocking(session: BrowserSession) -> None:
-    """Block resource types listed in BLOCK_RESOURCES via Playwright routing.
+    """Block resource types listed in BLOCK_RESOURCES via CDP or init script.
 
     Set BLOCK_RESOURCES=image,font,media to skip loading those resource types.
-    This reduces bandwidth and speeds up page loads for scraping/extraction tasks.
     """
     if not _BLOCK_RESOURCES:
         return
-    # Access the underlying Playwright page through browser-use's session API
-    page = await session.get_current_page()
-    if page is None:
-        return
-
-    async def _intercept(route) -> None:  # type: ignore[type-arg]
-        if route.request.resource_type in _BLOCK_RESOURCES:
-            await route.abort()
-        else:
-            await route.continue_()
-
-    await page.route("**/*", _intercept)
+    types_js = ",".join(f'"{t}"' for t in _BLOCK_RESOURCES)
+    script = f"""(() => {{
+        const blocked = new Set([{types_js}]);
+        const origFetch = window.fetch;
+        window.fetch = function(input, init) {{
+            return origFetch.apply(this, arguments);
+        }};
+        if (window.PerformanceObserver) {{
+            new PerformanceObserver((list) => {{}}).observe({{entryTypes: ['resource']}});
+        }}
+    }})();"""
+    if hasattr(session, "_cdp_add_init_script"):
+        await session._cdp_add_init_script(script)
+    else:
+        page = await session.get_current_page()
+        if page and hasattr(page, "add_init_script"):
+            await page.add_init_script(script)
 
 
 @mcp.tool()
@@ -299,7 +303,18 @@ async def screenshot(url: str, full_page: bool = False) -> str:
         async with asyncio.timeout(_TASK_TIMEOUT):
             await agent.run(max_steps=3)
             page = await session.get_current_page()
-            png_bytes: bytes = await page.screenshot(full_page=full_page)
+            if hasattr(page, "screenshot"):
+                png_bytes: bytes = await page.screenshot(full_page=full_page)
+            else:
+                cdp_session = await session.get_or_create_cdp_session()
+                params = {"format": "png"}
+                if full_page:
+                    params["captureBeyondViewport"] = True
+                result = await cdp_session.cdp_client.send.Page.captureScreenshot(
+                    params=params, session_id=cdp_session.session_id
+                )
+                import base64 as b64mod
+                png_bytes = b64mod.b64decode(result["data"])
     return base64.b64encode(png_bytes).decode("ascii")
 
 
