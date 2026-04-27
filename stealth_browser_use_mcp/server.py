@@ -22,8 +22,13 @@ mcp = FastMCP(
 _ALLOWED_SCHEMES = {"http", "https"}
 _MAX_STEPS_LIMIT = 50
 _MAX_INPUT_LENGTH = 4000
-_DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
-_DEFAULT_OPENAI_MODEL = "gpt-4o"
+
+_PROVIDER_DEFAULTS = {
+    "anthropic": "claude-sonnet-4-20250514",
+    "openai": "gpt-4o",
+    "google": "gemini-2.0-flash",
+    "ollama": "qwen3:8b",
+}
 
 
 def _validate_url(url: str) -> str:
@@ -39,7 +44,12 @@ def _clamp_steps(max_steps: int) -> int:
     return min(max(1, max_steps), _MAX_STEPS_LIMIT)
 
 
+def _model(provider: str) -> str:
+    return os.environ.get("BROWSER_USE_MODEL", _PROVIDER_DEFAULTS[provider])
+
+
 def _llm() -> BaseChatModel:
+    # OpenAI + OpenAI-compatible (DeepSeek, Groq, Together, etc.)
     if os.environ.get("OPENAI_API_KEY"):
         try:
             from langchain_openai import ChatOpenAI
@@ -48,18 +58,44 @@ def _llm() -> BaseChatModel:
                 "OPENAI_API_KEY is set but langchain-openai is not installed. "
                 "Run: pip install 'stealth-browser-use-mcp[openai]'"
             ) from e
-        model = os.environ.get("BROWSER_USE_MODEL", _DEFAULT_OPENAI_MODEL)
-        return ChatOpenAI(model=model)
+        kwargs: dict = {"model": _model("openai")}
+        if os.environ.get("OPENAI_BASE_URL"):
+            kwargs["base_url"] = os.environ["OPENAI_BASE_URL"]
+        return ChatOpenAI(**kwargs)
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        raise RuntimeError(
-            "No LLM API key found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY."
-        )
+    # Google Gemini
+    if os.environ.get("GOOGLE_API_KEY"):
+        try:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+        except ImportError as e:
+            raise ImportError(
+                "GOOGLE_API_KEY is set but langchain-google-genai is not installed. "
+                "Run: pip install 'stealth-browser-use-mcp[google]'"
+            ) from e
+        return ChatGoogleGenerativeAI(model=_model("google"))
 
-    from langchain_anthropic import ChatAnthropic
+    # Ollama (local)
+    if os.environ.get("OLLAMA_MODEL"):
+        try:
+            from langchain_ollama import ChatOllama
+        except ImportError as e:
+            raise ImportError(
+                "OLLAMA_MODEL is set but langchain-ollama is not installed. "
+                "Run: pip install 'stealth-browser-use-mcp[ollama]'"
+            ) from e
+        base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+        return ChatOllama(model=_model("ollama"), base_url=base_url)
 
-    model = os.environ.get("BROWSER_USE_MODEL", _DEFAULT_ANTHROPIC_MODEL)
-    return ChatAnthropic(model=model)
+    # Anthropic (default)
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(model=_model("anthropic"))
+
+    raise RuntimeError(
+        "No LLM provider configured. Set one of: "
+        "ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or OLLAMA_MODEL"
+    )
 
 
 def _profile() -> BrowserProfile:

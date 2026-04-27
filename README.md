@@ -130,17 +130,24 @@ Both tools accept a `max_steps` parameter (capped at 50) to limit interaction de
 
 ## Configuration
 
+### LLM Providers
+
+| Provider | Key | Install |
+|----------|-----|---------|
+| **Anthropic** (default) | `ANTHROPIC_API_KEY` | included |
+| **OpenAI** | `OPENAI_API_KEY` | `pip install '...[openai]'` |
+| **DeepSeek / Groq / Together** | `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `pip install '...[openai]'` |
+| **Google Gemini** | `GOOGLE_API_KEY` | `pip install '...[google]'` |
+| **Ollama** (local) | `OLLAMA_MODEL` | `pip install '...[ollama]'` |
+
+All providers: `pip install 'stealth-browser-use-mcp[all]'`
+
+### Other Settings
+
 | Env var | Default | Description |
 |---------|---------|-------------|
-| `ANTHROPIC_API_KEY` | — | Required (or `OPENAI_API_KEY`) |
-| `BROWSER_USE_MODEL` | `claude-sonnet-4-20250514` / `gpt-4o` | LLM for the browser agent (auto-defaults per provider) |
+| `BROWSER_USE_MODEL` | auto per provider | Override the LLM model |
 | `HEADLESS` | `true` | Run browser headless |
-
-For OpenAI models:
-
-```bash
-pip install 'stealth-browser-use-mcp[openai]'
-```
 
 ## How It Works
 
