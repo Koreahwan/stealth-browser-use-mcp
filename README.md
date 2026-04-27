@@ -7,7 +7,7 @@ AI-native stealth browser MCP server. [Browser Use](https://github.com/browser-u
 
 ## Quick Start
 
-> Add stealth-browser-use-mcp as MCP server and scrape today's top stories from news.ycombinator.com
+> Add stealth-browser-use-mcp as MCP server
 
 ## Install
 
@@ -47,6 +47,7 @@ Works with any MCP client: Cursor, Windsurf, VS Code, Cline, Roo Code, OpenCode,
 | Provider | Key | Install |
 |----------|-----|---------|
 | Anthropic (default) | `ANTHROPIC_API_KEY` | included |
+| OpenRouter | `OPENROUTER_API_KEY` | `[openai]` |
 | OpenAI | `OPENAI_API_KEY` | `[openai]` |
 | DeepSeek / Groq / Together | `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `[openai]` |
 | Google Gemini | `GOOGLE_API_KEY` | `[google]` |

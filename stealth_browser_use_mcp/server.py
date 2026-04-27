@@ -26,6 +26,7 @@ _MAX_INPUT_LENGTH = 4000
 _PROVIDER_DEFAULTS = {
     "anthropic": "claude-sonnet-4-20250514",
     "openai": "gpt-4o",
+    "openrouter": "anthropic/claude-sonnet-4",
     "google": "gemini-2.0-flash",
     "ollama": "qwen3:8b",
 }
@@ -56,6 +57,21 @@ def _llm() -> BaseChatModel:
         from langchain_anthropic import ChatAnthropic
 
         return ChatAnthropic(model=_model("anthropic"))
+
+    # OpenRouter
+    if os.environ.get("OPENROUTER_API_KEY"):
+        try:
+            from langchain_openai import ChatOpenAI
+        except ImportError as e:
+            raise ImportError(
+                "OPENROUTER_API_KEY is set but langchain-openai is not installed. "
+                "Run: pip install 'stealth-browser-use-mcp[openai]'"
+            ) from e
+        return ChatOpenAI(
+            model=_model("openrouter"),
+            api_key=os.environ["OPENROUTER_API_KEY"],
+            base_url="https://openrouter.ai/api/v1",
+        )
 
     # OpenAI + OpenAI-compatible (DeepSeek, Groq, Together, etc.)
     if os.environ.get("OPENAI_API_KEY"):
@@ -96,7 +112,7 @@ def _llm() -> BaseChatModel:
 
     raise RuntimeError(
         "No LLM provider configured. Set one of: "
-        "ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or OLLAMA_MODEL"
+        "ANTHROPIC_API_KEY, OPENROUTER_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or OLLAMA_MODEL"
     )
 
 
