@@ -1,6 +1,6 @@
-# stealth-browser-use-mcp
+# wraith-mcp
 
-[![PyPI](https://img.shields.io/pypi/v/stealth-browser-use-mcp)](https://pypi.org/project/stealth-browser-use-mcp/)
+[![PyPI](https://img.shields.io/pypi/v/wraith-mcp)](https://pypi.org/project/wraith-mcp/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 AI-native stealth browser MCP server. Tell it what to do — it figures out how.
@@ -9,7 +9,7 @@ AI-native stealth browser MCP server. Tell it what to do — it figures out how.
 
 ## Why This One?
 
-| | stealth-browser-use-mcp | playwright-mcp | stealth-browser-mcp | browser-use-mcp-server |
+| | wraith-mcp | playwright-mcp | stealth-browser-mcp | browser-use-mcp-server |
 |---|---|---|---|---|
 | Navigation | **AI vision** (self-healing) | CSS selectors | CSS selectors | AI vision |
 | Bot detection bypass | **Patchright** (binary-level) | None | nodriver | None |
@@ -25,12 +25,12 @@ AI-native stealth browser MCP server. Tell it what to do — it figures out how.
 
 ## Quick Start
 
-> Add stealth-browser-use-mcp as MCP server
+> Add wraith-mcp as MCP server
 
 ## Install
 
 ```bash
-pip install stealth-browser-use-mcp
+pip install wraith-mcp
 ```
 
 ## Setup
@@ -40,8 +40,8 @@ Add to your MCP config (`.mcp.json`, `.cursor/mcp.json`, `.windsurf/mcp.json`, e
 ```json
 {
   "mcpServers": {
-    "stealth-browser": {
-      "command": "stealth-browser-use-mcp",
+    "wraith": {
+      "command": "wraith-mcp",
       "env": {
         "ANTHROPIC_API_KEY": "your-key",
         "HEADLESS": "true"
@@ -73,6 +73,25 @@ Works with any MCP client: Cursor, Windsurf, VS Code, Cline, Roo Code, OpenCode,
 
 All providers included. Set `BROWSER_USE_MODEL` to override the default model.
 
+## Docker
+
+```bash
+docker build -t wraith-mcp .
+docker run -i --rm -e ANTHROPIC_API_KEY=your-key wraith-mcp
+```
+
+SSE mode (remote/cloud):
+
+```bash
+docker run -p 8808:8808 -e ANTHROPIC_API_KEY=your-key wraith-mcp
+```
+
+## SSE Transport
+
+```bash
+wraith-mcp --transport sse --port 8808
+```
+
 ## How It Works
 
 ```
@@ -82,25 +101,6 @@ AI Agent -> MCP Server -> Browser Use Agent -> Patchright Chromium
 1. Describe a task in natural language
 2. Browser Use sees the page (screenshot + DOM) and decides actions
 3. Patchright executes without triggering bot detection
-
-## Docker
-
-```bash
-docker build -t stealth-browser-use-mcp .
-docker run -i --rm -e ANTHROPIC_API_KEY=your-key stealth-browser-use-mcp
-```
-
-SSE mode (remote/cloud):
-
-```bash
-docker run -p 8808:8808 -e ANTHROPIC_API_KEY=your-key stealth-browser-use-mcp
-```
-
-## SSE Transport
-
-```bash
-stealth-browser-use-mcp --transport sse --port 8808
-```
 
 ## Security
 

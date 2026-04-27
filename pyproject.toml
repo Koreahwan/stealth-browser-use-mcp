@@ -1,12 +1,12 @@
 [project]
-name = "stealth-browser-use-mcp"
+name = "wraith-mcp"
 version = "0.1.0"
-description = "AI-native stealth browser MCP server for any AI agent — Browser Use + Patchright"
+description = "AI-native stealth browser MCP server — Browser Use + Patchright"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 authors = [{ name = "KH" }]
-keywords = ["mcp", "browser-use", "patchright", "stealth", "browser-automation", "ai-agent", "cursor", "codex", "opencode", "windsurf", "cline"]
+keywords = ["mcp", "browser-use", "patchright", "stealth", "browser-automation", "ai-agent", "wraith", "cursor", "codex", "opencode", "windsurf", "cline"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -27,14 +27,14 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/Koreahwan/stealth-browser-use-mcp"
+Repository = "https://github.com/Koreahwan/wraith-mcp"
 
 [project.scripts]
-stealth-browser-use-mcp = "stealth_browser_use_mcp.server:main"
+wraith-mcp = "wraith_mcp.server:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["stealth_browser_use_mcp"]
+packages = ["wraith_mcp"]

@@ -8,12 +8,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE ./
-COPY stealth_browser_use_mcp/ stealth_browser_use_mcp/
+COPY wraith_mcp/ wraith_mcp/
 
 RUN pip install --no-cache-dir . && patchright install chromium
 
 ENV HEADLESS=true
 EXPOSE 8808
 
-ENTRYPOINT ["stealth-browser-use-mcp"]
+ENTRYPOINT ["wraith-mcp"]
 CMD ["--transport", "sse", "--port", "8808"]

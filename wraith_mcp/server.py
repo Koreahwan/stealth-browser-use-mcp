@@ -1,4 +1,4 @@
-"""Stealth Browser Use MCP Server — AI-native browser automation with bot detection evasion."""
+"""Wraith MCP — AI-native stealth browser with bot detection evasion."""
 
 import asyncio
 import os
@@ -14,7 +14,7 @@ from langchain_core.language_models import BaseChatModel
 from .browser_manager import chromium_path
 
 mcp = FastMCP(
-    "stealth-browser-use",
+    "wraith",
     instructions=(
         "AI-native stealth browser. Send natural language tasks — "
         "no selectors needed. Resilient to site layout changes."
@@ -177,7 +177,7 @@ async def extract(url: str, data_description: str, max_steps: int = 15) -> str:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Stealth Browser Use MCP Server")
+    parser = argparse.ArgumentParser(description="Wraith MCP Server")
     parser.add_argument(
         "--transport", choices=["stdio", "sse"], default="stdio",
     )
@@ -187,10 +187,10 @@ def main() -> None:
 
     provider = _check_provider()
     if provider:
-        print(f"[stealth-browser-use] LLM provider: {provider}", file=sys.stderr)
+        print(f"[wraith-mcp] LLM provider: {provider}", file=sys.stderr)
     else:
         print(
-            "[stealth-browser-use] WARNING: No LLM provider configured. "
+            "[wraith-mcp] WARNING: No LLM provider configured. "
             "Set ANTHROPIC_API_KEY, OPENROUTER_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or OLLAMA_MODEL",
             file=sys.stderr,
         )
