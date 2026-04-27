@@ -5,6 +5,12 @@ AI-native stealth browser MCP server. [Browser Use](https://github.com/browser-u
 - **Self-healing**: navigates by AI vision, not CSS selectors
 - **Stealth**: Patchright patches Chromium to bypass bot detection
 
+## Quick Start
+
+Just paste this to your AI agent:
+
+> Install stealth-browser-use-mcp as an MCP server, then go to https://news.ycombinator.com and extract the top 5 posts with titles and scores.
+
 ## Install
 
 ```bash
