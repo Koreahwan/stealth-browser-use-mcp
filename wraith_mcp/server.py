@@ -212,21 +212,31 @@ async def browse(
     if url:
         full_task = f"Go to {_validate_url(url)}. Then: {task}"
 
-    if session_id:
-        session, _ = await _get_session(session_id)
-        await _apply_resource_blocking(session)
-        agent = Agent(task=full_task, llm=_llm(), browser_session=session)
-        async with asyncio.timeout(_TASK_TIMEOUT):
-            result = await agent.run(max_steps=_clamp_steps(max_steps))
-        return result.final_result() or "Task completed, no text result."
+    try:
+        if session_id:
+            session, _ = await _get_session(session_id)
+            await _apply_resource_blocking(session)
+            agent = Agent(task=full_task, llm=_llm(), browser_session=session)
+            async with asyncio.timeout(_TASK_TIMEOUT):
+                result = await agent.run(max_steps=_clamp_steps(max_steps))
+            return result.final_result() or "Task completed, no text result."
 
-    session = BrowserSession(browser_profile=_profile())
-    async with session:
-        await _apply_resource_blocking(session)
-        agent = Agent(task=full_task, llm=_llm(), browser_session=session)
-        async with asyncio.timeout(_TASK_TIMEOUT):
-            result = await agent.run(max_steps=_clamp_steps(max_steps))
-        return result.final_result() or "Task completed, no text result."
+        session = BrowserSession(browser_profile=_profile())
+        async with session:
+            await _apply_resource_blocking(session)
+            agent = Agent(task=full_task, llm=_llm(), browser_session=session)
+            async with asyncio.timeout(_TASK_TIMEOUT):
+                result = await agent.run(max_steps=_clamp_steps(max_steps))
+            return result.final_result() or "Task completed, no text result."
+    except TimeoutError:
+        raise TimeoutError(
+            f"Task timed out after {_TASK_TIMEOUT}s. "
+            "Increase BROWSER_TASK_TIMEOUT or reduce max_steps."
+        )
+    except FileNotFoundError:
+        raise RuntimeError(
+            "Browser not found. Run: patchright install chromium"
+        )
 
 
 @mcp.tool()
@@ -254,21 +264,31 @@ async def extract(
         f"Extract the following data and return it in a structured format: {data_description}"
     )
 
-    if session_id:
-        session, _ = await _get_session(session_id)
-        await _apply_resource_blocking(session)
-        agent = Agent(task=task, llm=_llm(), browser_session=session)
-        async with asyncio.timeout(_TASK_TIMEOUT):
-            result = await agent.run(max_steps=_clamp_steps(max_steps))
-        return result.final_result() or "No data extracted."
+    try:
+        if session_id:
+            session, _ = await _get_session(session_id)
+            await _apply_resource_blocking(session)
+            agent = Agent(task=task, llm=_llm(), browser_session=session)
+            async with asyncio.timeout(_TASK_TIMEOUT):
+                result = await agent.run(max_steps=_clamp_steps(max_steps))
+            return result.final_result() or "No data extracted."
 
-    session = BrowserSession(browser_profile=_profile())
-    async with session:
-        await _apply_resource_blocking(session)
-        agent = Agent(task=task, llm=_llm(), browser_session=session)
-        async with asyncio.timeout(_TASK_TIMEOUT):
-            result = await agent.run(max_steps=_clamp_steps(max_steps))
-        return result.final_result() or "No data extracted."
+        session = BrowserSession(browser_profile=_profile())
+        async with session:
+            await _apply_resource_blocking(session)
+            agent = Agent(task=task, llm=_llm(), browser_session=session)
+            async with asyncio.timeout(_TASK_TIMEOUT):
+                result = await agent.run(max_steps=_clamp_steps(max_steps))
+            return result.final_result() or "No data extracted."
+    except TimeoutError:
+        raise TimeoutError(
+            f"Task timed out after {_TASK_TIMEOUT}s. "
+            "Increase BROWSER_TASK_TIMEOUT or reduce max_steps."
+        )
+    except FileNotFoundError:
+        raise RuntimeError(
+            "Browser not found. Run: patchright install chromium"
+        )
 
 
 @mcp.tool()

@@ -59,6 +59,10 @@ Works with any MCP client: Cursor, Windsurf, VS Code, Cline, Roo Code, OpenCode,
 |------|-------------|
 | `browse` | Execute any browser task in natural language |
 | `extract` | Pull structured data from a page |
+| `screenshot` | Capture a page as base64 PNG |
+| `close_session` | Close a persistent browser session |
+
+All tools support `session_id` for persistent sessions across multiple calls.
 
 ## LLM Providers
 
